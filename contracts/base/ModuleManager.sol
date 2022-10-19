@@ -7,6 +7,7 @@ import "./Executor.sol";
 /// @title Module Manager - A contract that manages modules that can execute transactions via this contract
 /// @author Stefan George - <stefan@gnosis.pm>
 /// @author Richard Meissner - <richard@gnosis.pm>
+// TODO: can be removed if we don't need modules
 contract ModuleManager is SelfAuthorized, Executor {
     event EnabledModule(address module);
     event DisabledModule(address module);

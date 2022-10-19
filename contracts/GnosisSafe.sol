@@ -108,6 +108,7 @@ contract GnosisSafe is
     /// @param gasToken Token address (or 0 if ETH) that is used for the payment.
     /// @param refundReceiver Address of receiver of gas payment (or 0 if tx.origin).
     /// @param signatures Packed signature data ({bytes32 r}{bytes32 s}{uint8 v})
+    //TODO: all signatures are passed in @param signatures with encode packing
     function execTransaction(
         address to,
         uint256 value,
@@ -236,6 +237,7 @@ contract GnosisSafe is
      * @param data That should be signed (this is passed to an external validator contract)
      * @param signatures Signature data that should be verified. Can be ECDSA signature, contract signature (EIP-1271) or approved hash.
      * @param requiredSignatures Amount of required valid signatures.
+     * TODO: here is the signature validation from contracts and ecrecover
      */
     function checkNSignatures(
         bytes32 dataHash,
@@ -269,6 +271,7 @@ contract GnosisSafe is
 
                 // Check if the contract signature is in bounds: start of data is s + 32 and end is start + signature length
                 uint256 contractSignatureLen;
+                // TODO: assembly
                 // solhint-disable-next-line no-inline-assembly
                 assembly {
                     contractSignatureLen := mload(add(add(signatures, s), 0x20))
@@ -312,6 +315,7 @@ contract GnosisSafe is
     /// @param operation Operation type of Safe transaction.
     /// @return Estimate without refunds and overhead fees (base transaction and payload data gas costs).
     /// @notice Deprecated in favor of common/StorageAccessible.sol and will be removed in next version.
+    // TODO: will not be useful for lachain as we charge fee for reverted tx as well
     function requiredTxGas(
         address to,
         uint256 value,
@@ -339,6 +343,7 @@ contract GnosisSafe is
     /// @dev Returns the chain id used by this contract.
     function getChainId() public view returns (uint256) {
         uint256 id;
+        // TODO: assembly
         // solhint-disable-next-line no-inline-assembly
         assembly {
             id := chainid()
@@ -390,6 +395,7 @@ contract GnosisSafe is
                     _nonce
                 )
             );
+        //EIP 191
         return abi.encodePacked(bytes1(0x19), bytes1(0x01), domainSeparator(), safeTxHash);
     }
 

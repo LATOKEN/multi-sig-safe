@@ -18,6 +18,7 @@ contract ReentrancyTransactionGuard is BaseGuard {
         // E.g. The expected check method might change and then the Safe would be locked.
     }
 
+    //TODO: why do we need this guard storage slot?
     function getGuard() internal pure returns (GuardValue storage guard) {
         bytes32 slot = GUARD_STORAGE_SLOT;
         // solhint-disable-next-line no-inline-assembly

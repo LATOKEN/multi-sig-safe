@@ -3,6 +3,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 /// @title StorageAccessible - generic base contract that allows callers to access all internal storage.
 /// @notice See https://github.com/gnosis/util-contracts/blob/bb5fe5fb5df6d8400998094fb1b32a178a47c3a1/contracts/StorageAccessible.sol
+// TODO: why do we need this?
 contract StorageAccessible {
     /**
      * @dev Reads `length` bytes of storage in the currents contract

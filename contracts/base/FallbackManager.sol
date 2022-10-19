@@ -5,6 +5,7 @@ import "../common/SelfAuthorized.sol";
 
 /// @title Fallback Manager - A contract that manages fallback calls made to this contract
 /// @author Richard Meissner - <richard@gnosis.pm>
+// TODO: Fallback handler to be changed as per lachain use case
 contract FallbackManager is SelfAuthorized {
     event ChangedFallbackHandler(address handler);
 

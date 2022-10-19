@@ -3,6 +3,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 /// @title SecuredTokenTransfer - Secure token transfer
 /// @author Richard Meissner - <richard@gnosis.pm>
+// TODO: we can remove this if only LA is used for fee
 contract SecuredTokenTransfer {
     /// @dev Transfers a token and returns if it was a success
     /// @param token Token that should be transferred
@@ -15,6 +16,7 @@ contract SecuredTokenTransfer {
     ) internal returns (bool transferred) {
         // 0xa9059cbb - keccack("transfer(address,uint256)")
         bytes memory data = abi.encodeWithSelector(0xa9059cbb, receiver, amount);
+        // TODO: assembly
         // solhint-disable-next-line no-inline-assembly
         assembly {
             // We write the return value to scratch space.
