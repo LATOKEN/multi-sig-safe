@@ -21,9 +21,11 @@ contract ModuleManager is SelfAuthorized, Executor {
     function setupModules(address to, bytes memory data) internal {
         require(modules[SENTINEL_MODULES] == address(0), "GS100");
         modules[SENTINEL_MODULES] = SENTINEL_MODULES;
-        if (to != address(0))
+        if (to != address(0)) {
             // Setup has to complete successfully or transaction fails.
-            require(execute(to, 0, data, Enum.Operation.DelegateCall, gasleft()), "GS000");
+            bool success = execute(to, 0, data, Enum.Operation.DelegateCall, gasleft());
+            require(success, "GS000");
+        }
     }
 
     /// @dev Allows to add a module to the whitelist.
@@ -85,20 +87,22 @@ contract ModuleManager is SelfAuthorized, Executor {
         Enum.Operation operation
     ) public returns (bool success, bytes memory returnData) {
         success = execTransactionFromModule(to, value, data, operation);
+        // TODO new method in solang
         // solhint-disable-next-line no-inline-assembly
-        assembly {
-            // Load free memory location
-            let ptr := mload(0x40)
-            // We allocate memory for the return data by setting the free memory location to
-            // current free memory location + data size + 32 bytes for data size value
-            mstore(0x40, add(ptr, add(returndatasize(), 0x20)))
-            // Store the size
-            mstore(ptr, returndatasize())
-            // Store the data
-            returndatacopy(add(ptr, 0x20), 0, returndatasize())
-            // Point the return data to the correct memory location
-            returnData := ptr
-        }
+        // Web Assembly
+        // assembly {
+        //     // Load free memory location
+        //     let ptr := mload(0x40)
+        //     // We allocate memory for the return data by setting the free memory location to
+        //     // current free memory location + data size + 32 bytes for data size value
+        //     mstore(0x40, add(ptr, add(returndatasize(), 0x20)))
+        //     // Store the size
+        //     mstore(ptr, returndatasize())
+        //     // Store the data
+        //     returndatacopy(add(ptr, 0x20), 0, returndatasize())
+        //     // Point the return data to the correct memory location
+        //     returnData := ptr
+        // }
     }
 
     /// @dev Returns if an module is enabled
@@ -114,21 +118,21 @@ contract ModuleManager is SelfAuthorized, Executor {
     /// @return next Start of the next page.
     function getModulesPaginated(address start, uint256 pageSize) external view returns (address[] memory array, address next) {
         // Init array with max page size
-        array = new address[](pageSize);
+        address[] memory initArray = new address[](uint32(pageSize));
 
-        // Populate return array
+        // Populate initial array
         uint256 moduleCount = 0;
         address currentModule = modules[start];
         while (currentModule != address(0x0) && currentModule != SENTINEL_MODULES && moduleCount < pageSize) {
-            array[moduleCount] = currentModule;
+            initArray[moduleCount] = currentModule;
             currentModule = modules[currentModule];
             moduleCount++;
         }
         next = currentModule;
-        // Set correct size of returned array
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            mstore(array, moduleCount)
+
+        array = new address[](uint32(moduleCount));
+        for (uint256 i = 0; i < moduleCount; i++) {
+            array[i] = initArray[i];
         }
     }
 }

@@ -134,7 +134,7 @@ contract OwnerManager is SelfAuthorized {
     /// @dev Returns array of owners.
     /// @return Array of Safe owners.
     function getOwners() public view returns (address[] memory) {
-        address[] memory array = new address[](ownerCount);
+        address[] memory array = new address[](uint32(ownerCount));
 
         // populate return array
         uint256 index = 0;
