@@ -21,6 +21,8 @@ interface Guard is IERC165 {
     ) external;
 
     function checkAfterExecution(bytes32 txHash, bool success) external;
+
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
 abstract contract BaseGuard is Guard {
@@ -36,7 +38,7 @@ abstract contract BaseGuard is Guard {
 contract GuardManager is SelfAuthorized {
     event ChangedGuard(address guard);
     // keccak256("guard_manager.guard.address")
-    bytes32 internal constant GUARD_STORAGE_SLOT = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
+    address public guardAddress;
 
     /// @dev Set a guard that checks transactions before execution
     /// @param guard The address of the guard to be used or the 0 address to disable the guard
@@ -44,19 +46,11 @@ contract GuardManager is SelfAuthorized {
         if (guard != address(0)) {
             require(Guard(guard).supportsInterface(type(Guard).interfaceId), "GS300");
         }
-        bytes32 slot = GUARD_STORAGE_SLOT;
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            sstore(slot, guard)
-        }
+        guardAddress = guard;
         emit ChangedGuard(guard);
     }
 
     function getGuard() internal view returns (address guard) {
-        bytes32 slot = GUARD_STORAGE_SLOT;
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            guard := sload(slot)
-        }
+        guard = guardAddress;
     }
 }

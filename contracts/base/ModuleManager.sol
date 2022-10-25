@@ -7,7 +7,6 @@ import "./Executor.sol";
 /// @title Module Manager - A contract that manages modules that can execute transactions via this contract
 /// @author Stefan George - <stefan@gnosis.pm>
 /// @author Richard Meissner - <richard@gnosis.pm>
-// TODO: can be removed if we don't need modules
 contract ModuleManager is SelfAuthorized, Executor {
     event EnabledModule(address module);
     event DisabledModule(address module);
@@ -20,12 +19,16 @@ contract ModuleManager is SelfAuthorized, Executor {
 
     function setupModules(address to, bytes memory data) internal {
         require(modules[SENTINEL_MODULES] == address(0), "GS100");
-        modules[SENTINEL_MODULES] = SENTINEL_MODULES;
+        setModule(SENTINEL_MODULES, SENTINEL_MODULES);
         if (to != address(0)) {
             // Setup has to complete successfully or transaction fails.
             bool success = execute(to, 0, data, Enum.Operation.DelegateCall, gasleft());
             require(success, "GS000");
         }
+    }
+
+    function setModule(address key, address value) internal {
+        modules[key] = value;
     }
 
     /// @dev Allows to add a module to the whitelist.
@@ -87,22 +90,8 @@ contract ModuleManager is SelfAuthorized, Executor {
         Enum.Operation operation
     ) public returns (bool success, bytes memory returnData) {
         success = execTransactionFromModule(to, value, data, operation);
-        // TODO new method in solang
-        // solhint-disable-next-line no-inline-assembly
-        // Web Assembly
-        // assembly {
-        //     // Load free memory location
-        //     let ptr := mload(0x40)
-        //     // We allocate memory for the return data by setting the free memory location to
-        //     // current free memory location + data size + 32 bytes for data size value
-        //     mstore(0x40, add(ptr, add(returndatasize(), 0x20)))
-        //     // Store the size
-        //     mstore(ptr, returndatasize())
-        //     // Store the data
-        //     returndatacopy(add(ptr, 0x20), 0, returndatasize())
-        //     // Point the return data to the correct memory location
-        //     returnData := ptr
-        // }
+        // TODO: uncomment when added
+        //returnData = getreturndata();
     }
 
     /// @dev Returns if an module is enabled

@@ -205,7 +205,7 @@ contract GnosisSafe is
         address payable receiver = refundReceiver == address(0) ? payable(tx.origin) : refundReceiver;
         if (gasToken == address(0)) {
             // For ETH we will only adjust the gas price to not be higher than the actual used gas price
-            payment = gasUsed.add(baseGas).mul(gasPrice < tx.gasprice ? gasPrice : tx.gasprice);
+            // payment = gasUsed.add(baseGas).mul(gasPrice < tx.gasprice ? gasPrice : tx.gasprice);
             require(receiver.send(payment), "GS011");
         } else {
             payment = gasUsed.add(baseGas).mul(gasPrice);
@@ -250,7 +250,7 @@ contract GnosisSafe is
         // There cannot be an owner with address 0.
         address lastOwner = address(0);
         address currentOwner;
-        uint8 v;
+        uint32 v;
         bytes32 r;
         bytes32 s;
         uint256 i;
@@ -269,23 +269,24 @@ contract GnosisSafe is
                 // Check that signature data pointer (s) is in bounds (points to the length of data -> 32 bytes)
                 require(uint256(s).add(32) <= signatures.length, "GS022");
 
-                // Check if the contract signature is in bounds: start of data is s + 32 and end is start + signature length
-                uint256 contractSignatureLen;
-                // TODO: assembly
-                // solhint-disable-next-line no-inline-assembly
-                assembly {
-                    contractSignatureLen := mload(add(add(signatures, s), 0x20))
-                }
-                require(uint256(s).add(32).add(contractSignatureLen) <= signatures.length, "GS023");
+                 // TODO: assembly
+                // // Check if the contract signature is in bounds: start of data is s + 32 and end is start + signature length
+                // uint256 contractSignatureLen;
+                // // solhint-disable-next-line no-inline-assembly
+                // assembly {
+                //     contractSignatureLen := mload(add(add(signatures, s), 0x20))
+                // }
+                // require(uint256(s).add(32).add(contractSignatureLen) <= signatures.length, "GS023");
 
-                // Check signature
-                bytes memory contractSignature;
-                // solhint-disable-next-line no-inline-assembly
-                assembly {
-                    // The signature data for contract signatures is appended to the concatenated signatures and the offset is stored in s
-                    contractSignature := add(add(signatures, s), 0x20)
-                }
-                require(ISignatureValidator(currentOwner).isValidSignature(data, contractSignature) == EIP1271_MAGIC_VALUE, "GS024");
+                // TODO: assembly
+                // // Check signature
+                // // bytes memory contractSignature;
+                // // solhint-disable-next-line no-inline-assembly
+                // assembly {
+                //     // The signature data for contract signatures is appended to the concatenated signatures and the offset is stored in s
+                //     contractSignature := add(add(signatures, s), 0x20)
+                // }
+                // require(ISignatureValidator(currentOwner).isValidSignature(data, contractSignature) == EIP1271_MAGIC_VALUE, "GS024");
             } else if (v == 1) {
                 // If v is 1 then it is an approved hash
                 // When handling approved hashes the address of the approver is encoded into r
@@ -342,13 +343,7 @@ contract GnosisSafe is
 
     /// @dev Returns the chain id used by this contract.
     function getChainId() public view returns (uint256) {
-        uint256 id;
-        // TODO: assembly
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            id := chainid()
-        }
-        return id;
+        return block.chainid;
     }
 
     function domainSeparator() public view returns (bytes32) {
