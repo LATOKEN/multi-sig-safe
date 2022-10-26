@@ -89,9 +89,12 @@ contract ModuleManager is SelfAuthorized, Executor {
         bytes memory data,
         Enum.Operation operation
     ) public returns (bool success, bytes memory returnData) {
-        success = execTransactionFromModule(to, value, data, operation);
-        // TODO: uncomment when added
-        //returnData = getreturndata();
+        // Only whitelisted modules are allowed.
+        require(msg.sender != SENTINEL_MODULES && modules[msg.sender] != address(0), "GS104");
+        // Execute transaction without further confirmations.
+        (success, returnData) = executeWithReturnData(to, value, data, operation, gasleft());
+        if (success) emit ExecutionFromModuleSuccess(msg.sender);
+        else emit ExecutionFromModuleFailure(msg.sender);
     }
 
     /// @dev Returns if an module is enabled

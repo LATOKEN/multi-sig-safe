@@ -18,4 +18,18 @@ contract Executor {
             (success,) = address(to).call{value: value}(data);
         }
     }
+
+    function executeWithReturnData(
+        address to,
+        uint256 value,
+        bytes memory data,
+        Enum.Operation operation,
+        uint256 txGas
+    ) internal returns (bool success, bytes memory returnData) {
+        if (operation == Enum.Operation.DelegateCall) {
+            (success, returnData) = address(to).delegatecall(data);
+        } else {
+            (success, returnData) = address(to).call{value: value}(data);
+        }
+    }
 }

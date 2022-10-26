@@ -205,7 +205,7 @@ contract GnosisSafe is
         address payable receiver = refundReceiver == address(0) ? payable(tx.origin) : refundReceiver;
         if (gasToken == address(0)) {
             // For ETH we will only adjust the gas price to not be higher than the actual used gas price
-            // payment = gasUsed.add(baseGas).mul(gasPrice < tx.gasprice ? gasPrice : tx.gasprice);
+            payment = gasUsed.add(baseGas).mul(gasPrice < tx.gasprice ? gasPrice : tx.gasprice);
             require(receiver.send(payment), "GS011");
         } else {
             payment = gasUsed.add(baseGas).mul(gasPrice);
