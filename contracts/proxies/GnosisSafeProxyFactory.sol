@@ -14,13 +14,12 @@ contract GnosisSafeProxyFactory {
     /// @param data Payload for message call sent to new proxy contract.
     function createProxy(address singleton, bytes memory data) public returns (GnosisSafeProxy proxy) {
         proxy = new GnosisSafeProxy(singleton);
-        if (data.length > 0)
-            // solhint-disable-next-line no-inline-assembly
-            assembly {
-                if eq(call(gas(), proxy, 0, add(data, 0x20), mload(data), 0, 0), 0) {
-                    revert(0, 0)
-                }
+        if (data.length > 0) {
+            (bool success,) = address(proxy).call(data);
+            if (success == false) {
+                revert();
             }
+        }
         emit ProxyCreation(proxy, singleton);
     }
 
@@ -47,10 +46,7 @@ contract GnosisSafeProxyFactory {
         // If the initializer changes the proxy address should change too. Hashing the initializer data is cheaper than just concatinating it
         bytes32 salt = keccak256(abi.encodePacked(keccak256(initializer), saltNonce));
         bytes memory deploymentData = abi.encodePacked(type(GnosisSafeProxy).creationCode, uint256(uint160(_singleton)));
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            proxy := create2(0x0, add(0x20, deploymentData), mload(deploymentData), salt)
-        }
+        proxy = new GnosisSafeProxy{salt: uint256(salt)}(_singleton);
         require(address(proxy) != address(0), "Create2 call failed");
     }
 
@@ -64,13 +60,12 @@ contract GnosisSafeProxyFactory {
         uint256 saltNonce
     ) public returns (GnosisSafeProxy proxy) {
         proxy = deployProxyWithNonce(_singleton, initializer, saltNonce);
-        if (initializer.length > 0)
-            // solhint-disable-next-line no-inline-assembly
-            assembly {
-                if eq(call(gas(), proxy, 0, add(initializer, 0x20), mload(initializer), 0, 0), 0) {
-                    revert(0, 0)
-                }
+        if (initializer.length > 0) {
+            (bool success,) = address(proxy).call(initializer);
+            if (success == false) {
+                revert();
             }
+        }
         emit ProxyCreation(proxy, _singleton);
     }
 
