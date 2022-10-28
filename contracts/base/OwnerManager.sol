@@ -10,7 +10,7 @@ contract OwnerManager is SelfAuthorized {
     event RemovedOwner(address owner);
     event ChangedThreshold(uint256 threshold);
 
-    address internal constant SENTINEL_OWNERS = address(0x1);
+    address internal SENTINEL_OWNERS; // address(0x1)
 
     mapping(address => address) internal owners;
     uint256 internal ownerCount;
@@ -20,6 +20,8 @@ contract OwnerManager is SelfAuthorized {
     /// @param _owners List of Safe owners.
     /// @param _threshold Number of required confirmations for a Safe transaction.
     function setupOwners(address[] memory _owners, uint256 _threshold) internal {
+        SENTINEL_OWNERS = address(0x1);
+
         // Threshold can only be 0 at initialization.
         // Check ensures that setup function can only be called once.
         require(threshold == 0, "GS200");

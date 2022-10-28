@@ -13,11 +13,13 @@ contract ModuleManager is SelfAuthorized, Executor {
     event ExecutionFromModuleSuccess(address indexed module);
     event ExecutionFromModuleFailure(address indexed module);
 
-    address internal constant SENTINEL_MODULES = address(0x1);
+    address internal SENTINEL_MODULES; // address(0x1)
 
     mapping(address => address) internal modules;
 
     function setupModules(address to, bytes memory data) internal {
+        SENTINEL_MODULES = address(0x1);
+
         require(modules[SENTINEL_MODULES] == address(0), "GS100");
         setModule(SENTINEL_MODULES, SENTINEL_MODULES);
         if (to != address(0)) {

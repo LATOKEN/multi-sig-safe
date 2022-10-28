@@ -15,7 +15,6 @@ contract CompatibilityFallbackHandler is DefaultCallbackHandler, ISignatureValid
 
     bytes4 internal constant SIMULATE_SELECTOR = bytes4(keccak256("simulate(address,bytes)"));
 
-    address internal constant SENTINEL_MODULES = address(0x1);
     bytes4 internal constant UPDATED_MAGIC_VALUE = 0x1626ba7e;
 
     /**
@@ -74,7 +73,7 @@ contract CompatibilityFallbackHandler is DefaultCallbackHandler, ISignatureValid
     function getModules() external view returns (address[] memory) {
         // Caller should be a Safe
         GnosisSafe safe = GnosisSafe(payable(msg.sender));
-        (address[] memory array, ) = safe.getModulesPaginated(SENTINEL_MODULES, 10);
+        (address[] memory array, ) = safe.getModulesPaginated(address(0x1), 10);
         return array;
     }
 
