@@ -2,6 +2,7 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "../common/SelfAuthorized.sol";
+import "../common/EtherPaymentFallback.sol";
 
 /// @title Fallback Manager - A contract that manages fallback calls made to this contract
 /// @author Richard Meissner - <richard@gnosis.pm>
@@ -26,6 +27,11 @@ contract FallbackManager is SelfAuthorized {
 
     // solhint-disable-next-line payable-fallback,no-complex-fallback
     fallback() external {
+        if (msg.data.length == 0) {
+            emit EtherPaymentFallback.SafeReceived(msg.sender, 0);
+            return;
+        }
+
         if (handlerAddress == address(0)) {
             return;
         }
