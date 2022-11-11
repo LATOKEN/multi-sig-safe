@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import hre, { deployments, waffle } from "hardhat";
 import "@nomiclabs/hardhat-ethers";
-import { deployContract, getSimulateTxAccessor, getSafeWithOwners, getCompatFallbackHandler } from "../utils/setup";
+import { deployContract, getSimulateTxAccessor, getSafeWithOwners, getCompatFallbackHandler , getWallets} from "../utils/setup";
 import { buildContractCall, executeTx, executeTxWithSigners } from "../../src/utils/execution";
 import { parseEther } from "ethers/lib/utils";
 
@@ -13,7 +13,7 @@ describe("SimulateTxAccessor", async () => {
             selfdestruct(payable(msg.sender));
         }
     }`
-    const [user1, user2] = waffle.provider.getWallets();
+    const [user1, user2] = getWallets();
 
     const setupTests = deployments.createFixture(async ({ deployments }) => {
         await deployments.fixture();

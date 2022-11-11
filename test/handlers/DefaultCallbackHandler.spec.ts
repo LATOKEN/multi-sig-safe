@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { deployments } from "hardhat";
 import "@nomiclabs/hardhat-ethers";
 import { AddressZero } from "@ethersproject/constants";
-import { getDefaultCallbackHandler } from "../utils/setup";
+import { getDefaultCallbackHandler , getWallets} from "../utils/setup";
 
 describe("DefaultCallbackHandler", async () => {
     beforeEach(async () => {

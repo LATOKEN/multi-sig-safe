@@ -4,6 +4,7 @@ import { parseEther } from "@ethersproject/units"
 import { expect } from "chai";
 import hre, { ethers, waffle } from "hardhat";
 import { AddressOne } from "../../src/utils/constants";
+import { getWallets} from "../utils/setup";
 import { buildSafeTransaction, executeContractCallWithSigners, executeTxWithSigners, MetaTransaction } from "../../src/utils/execution"
 import { buildMultiSendSafeTx } from "../../src/utils/multisend";
 
@@ -15,7 +16,7 @@ interface TestSetup {
 
 export const verificationTests = (setupTests: () => Promise<TestSetup>) => {
 
-    const [user1, user2, user3] = waffle.provider.getWallets();
+    const [user1, user2, user3] = getWallets();
 
     describe("execTransaction", async () => {
         it('should be able to transfer ETH', async () => {

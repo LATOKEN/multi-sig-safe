@@ -32,21 +32,7 @@ contract SimulateTxAccessor is Executor {
         )
     {
         uint256 startGas = gasleft();
-        success = execute(to, value, data, operation, gasleft());
+        (success, returnData) = executeWithReturnData(to, value, data, operation, gasleft());
         estimate = startGas - gasleft();
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            // Load free memory location
-            let ptr := mload(0x40)
-            // We allocate memory for the return data by setting the free memory location to
-            // current free memory location + data size + 32 bytes for data size value
-            mstore(0x40, add(ptr, add(returndatasize(), 0x20)))
-            // Store the size
-            mstore(ptr, returndatasize())
-            // Store the data
-            returndatacopy(add(ptr, 0x20), 0, returndatasize())
-            // Point the return data to the correct memory location
-            returnData := ptr
-        }
     }
 }

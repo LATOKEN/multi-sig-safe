@@ -4,9 +4,10 @@ import "@nomiclabs/hardhat-ethers";
 import { buildSafeTransaction } from "../src/utils/execution";
 import { BigNumber } from "ethers";
 import { benchmark } from "./utils/setup"
+import { getWallets } from "../test/utils/setup";
 
 const testTarget = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-const [user1] = waffle.provider.getWallets();
+const [user1] = getWallets();
 
 benchmark("Ether", [{
     name: "transfer",

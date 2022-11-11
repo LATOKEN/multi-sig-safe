@@ -132,3 +132,9 @@ export const deployContract = async (deployer: Wallet, source: string): Promise<
     const receipt = await transaction.wait()
     return new Contract(receipt.contractAddress, output.interface, deployer)
 }
+
+export const getWallets = () => {
+    const accounts = hre.network.config.accounts as string[]
+
+    return accounts.map(key => new Wallet(key))
+}

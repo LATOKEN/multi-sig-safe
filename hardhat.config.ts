@@ -77,6 +77,11 @@ const userConfig: HardhatUserConfig = {
       blockGasLimit: 100000000,
       gas: 100000000
     },
+    lachainTestnet: {
+      ...sharedNetworkConfig,
+      url: `https://rpc-testnet.lachain.io`,
+      accounts: ["681b4a56b7d62eeac8109e84fbd5194eeca44fab63102ef727d17a83c48f20e9"],
+    },
     mainnet: {
       ...sharedNetworkConfig,
       url: `https://mainnet.infura.io/v3/${INFURA_KEY}`,

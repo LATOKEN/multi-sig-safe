@@ -1,12 +1,12 @@
 import { expect } from "chai";
 import hre, { deployments, waffle } from "hardhat";
 import "@nomiclabs/hardhat-ethers";
-import { getDefaultCallbackHandler, getSafeWithOwners } from "../../test/utils/setup";
+import { getDefaultCallbackHandler, getSafeWithOwners, getWallets } from "../../test/utils/setup";
 import { logGas, executeTx, SafeTransaction, safeSignTypedData, SafeSignature, executeContractCallWithSigners } from "../../src/utils/execution";
 import { Wallet, Contract } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
 
-const [user1, user2, user3, user4, user5] = waffle.provider.getWallets();
+const [user1, user2, user3, user4, user5] = getWallets();
 
 export interface Contracts {
     targets: Contract[],
