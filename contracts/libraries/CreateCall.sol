@@ -12,18 +12,16 @@ contract CreateCall {
         bytes32 salt
     ) public returns (address newContract) {
         // solhint-disable-next-line no-inline-assembly
-        assembly {
-            newContract := create2(value, add(0x20, deploymentData), mload(deploymentData), salt)
-        }
+        (, bytes memory result) =  address(0).call{value: value}(deploymentData);
+        (newContract) = abi.decode(result, address);
         require(newContract != address(0), "Could not deploy contract");
         emit ContractCreation(newContract);
     }
 
     function performCreate(uint256 value, bytes memory deploymentData) public returns (address newContract) {
         // solhint-disable-next-line no-inline-assembly
-        assembly {
-            newContract := create(value, add(deploymentData, 0x20), mload(deploymentData))
-        }
+        (, bytes memory result) =  address(0).call{value: value}(deploymentData);
+        (newContract) = abi.decode(result, address);
         require(newContract != address(0), "Could not deploy contract");
         emit ContractCreation(newContract);
     }

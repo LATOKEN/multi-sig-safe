@@ -1,5 +1,5 @@
 import hre, { deployments } from "hardhat"
-import { Wallet, Contract } from "ethers"
+import { Wallet, Contract, providers } from "ethers"
 import { AddressZero } from "@ethersproject/constants";
 import solc from "solc"
 import { logGas } from "../../src/utils/execution";
@@ -22,39 +22,33 @@ export const compatFallbackHandlerContract = async () => {
 }
 
 export const getSafeSingleton = async () => {
-    const SafeDeployment = await deployments.get(safeContractUnderTest());
     const Safe = await hre.ethers.getContractFactory(safeContractUnderTest());
-    return Safe.attach(SafeDeployment.address);
+    return await Safe.deploy();
 }
 
 export const getFactory = async () => {
-    const FactoryDeployment = await deployments.get("GnosisSafeProxyFactory");
     const Factory = await hre.ethers.getContractFactory("GnosisSafeProxyFactory");
-    return Factory.attach(FactoryDeployment.address);
+    return await Factory.deploy();
 }
 
 export const getSimulateTxAccessor = async () => {
-    const SimulateTxAccessorDeployment = await deployments.get("SimulateTxAccessor");
     const SimulateTxAccessor = await hre.ethers.getContractFactory("SimulateTxAccessor");
-    return SimulateTxAccessor.attach(SimulateTxAccessorDeployment.address);
+    return await SimulateTxAccessor.deploy();
 }
 
 export const getMultiSend = async () => {
-    const MultiSendDeployment = await deployments.get("MultiSend");
-    const MultiSend = await hre.ethers.getContractFactory("MultiSend");
-    return MultiSend.attach(MultiSendDeployment.address);
+    const MultiSend = await hre.ethers.getContractFactory("getMultiSend");
+    return await MultiSend.deploy();
 }
 
 export const getMultiSendCallOnly = async () => {
-    const MultiSendDeployment = await deployments.get("MultiSendCallOnly");
     const MultiSend = await hre.ethers.getContractFactory("MultiSendCallOnly");
-    return MultiSend.attach(MultiSendDeployment.address);
+    return await MultiSend.deploy();
 }
 
 export const getCreateCall = async () => {
-    const CreateCallDeployment = await deployments.get("CreateCall");
     const CreateCall = await hre.ethers.getContractFactory("CreateCall");
-    return CreateCall.attach(CreateCallDeployment.address);
+    return await CreateCall.deploy();
 }
 
 export const migrationContract = async () => {
@@ -128,13 +122,21 @@ export const compile = async (source: string) => {
 
 export const deployContract = async (deployer: Wallet, source: string): Promise<Contract> => {
     const output = await compile(source)
-    const transaction = await deployer.sendTransaction({ data: output.data, gasLimit: 6000000 })
+    const transaction = await deployer.sendTransaction({ data: output.data, gasLimit: 60000000 })
+    const receipt = await transaction.wait()
+    return new Contract(receipt.contractAddress, output.interface, deployer)
+}
+
+export const deployContractHex = async (deployer: Wallet, source: string, data: string): Promise<Contract> => {
+    const output = await compile(source)
+    const transaction = await deployer.sendTransaction({ data: data, gasLimit: 60000000 })
     const receipt = await transaction.wait()
     return new Contract(receipt.contractAddress, output.interface, deployer)
 }
 
 export const getWallets = () => {
     const accounts = hre.network.config.accounts as string[]
+    const provider = new providers.JsonRpcProvider('https://rpc-testnet.lachain.io')
 
-    return accounts.map(key => new Wallet(key))
+    return accounts.map(key => (new Wallet(key, provider)))
 }
