@@ -1,5 +1,6 @@
-build/
-node_modules/
+!node_modules/
+node_modules/*
+!node_modules/hardhat-deploy/
 .DS_Store
 .zos.session
 .openzeppelin/.session

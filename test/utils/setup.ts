@@ -23,12 +23,14 @@ export const compatFallbackHandlerContract = async () => {
 
 export const getSafeSingleton = async () => {
     const Safe = await hre.ethers.getContractFactory(safeContractUnderTest());
-    return await Safe.deploy();
+    const SafeInstance = await deployBytecode(new Wallet(hre.network.config.accounts[0],  new providers.JsonRpcProvider('https://rpc-testnet.lachain.io')), Safe.bytecode);
+    return Safe.attach(SafeInstance)
 }
 
 export const getFactory = async () => {
     const Factory = await hre.ethers.getContractFactory("GnosisSafeProxyFactory");
-    return await Factory.deploy();
+    const FactoryInstance = await deployBytecode(new Wallet(hre.network.config.accounts[0],  new providers.JsonRpcProvider('https://rpc-testnet.lachain.io')), Factory.bytecode);
+    return Factory.attach(FactoryInstance)
 }
 
 export const getSimulateTxAccessor = async () => {
@@ -125,6 +127,12 @@ export const deployContract = async (deployer: Wallet, source: string): Promise<
     const transaction = await deployer.sendTransaction({ data: output.data, gasLimit: 60000000 })
     const receipt = await transaction.wait()
     return new Contract(receipt.contractAddress, output.interface, deployer)
+}
+
+export const deployBytecode = async (deployer: Wallet, data: string): Promise<string> => {
+    const transaction = await deployer.sendTransaction({ data: data, gasLimit: 6000000000 })
+    const receipt = await transaction.wait()
+    return receipt.contractAddress
 }
 
 export const deployContractHex = async (deployer: Wallet, source: string, data: string): Promise<Contract> => {
