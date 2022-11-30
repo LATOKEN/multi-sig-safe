@@ -246,7 +246,7 @@ contract GnosisSafe is
         uint256 requiredSignatures
     ) public view {
         // Check that the provided signature data is not too short
-        require(signatures.length >= requiredSignatures.mul(65), "GS020");
+        require(signatures.length >= requiredSignatures.mul(66), "GS020");
         // There cannot be an owner with address 0.
         address lastOwner = address(0);
         address currentOwner;
@@ -264,29 +264,23 @@ contract GnosisSafe is
                 // Check that signature data pointer (s) is not pointing inside the static part of the signatures bytes
                 // This check is not completely accurate, since it is possible that more signatures than the threshold are send.
                 // Here we only check that the pointer is not pointing inside the part that is being processed
-                require(uint256(s) >= requiredSignatures.mul(65), "GS021");
+                require(uint256(s) >= requiredSignatures.mul(66), "GS021");
 
                 // Check that signature data pointer (s) is in bounds (points to the length of data -> 32 bytes)
                 require(uint256(s).add(32) <= signatures.length, "GS022");
 
-                 // TODO: assembly
-                // // Check if the contract signature is in bounds: start of data is s + 32 and end is start + signature length
-                // uint256 contractSignatureLen;
-                // // solhint-disable-next-line no-inline-assembly
-                // assembly {
-                //     contractSignatureLen := mload(add(add(signatures, s), 0x20))
-                // }
-                // require(uint256(s).add(32).add(contractSignatureLen) <= signatures.length, "GS023");
+                // Check if the contract signature is in bounds: start of data is s + 32 and end is start + signature length
+                uint256 contractSignatureLen = signatures[uint256(s).add(32)];
+                require(uint256(s).add(32).add(contractSignatureLen) <= signatures.length, "GS023");
 
-                // TODO: assembly
-                // // Check signature
-                // // bytes memory contractSignature;
-                // // solhint-disable-next-line no-inline-assembly
-                // assembly {
-                //     // The signature data for contract signatures is appended to the concatenated signatures and the offset is stored in s
-                //     contractSignature := add(add(signatures, s), 0x20)
-                // }
-                // require(ISignatureValidator(currentOwner).isValidSignature(data, contractSignature) == EIP1271_MAGIC_VALUE, "GS024");
+                // Check signature
+                // The signature data for contract signatures is appended to the concatenated signatures and the offset is stored in s
+                bytes memory contractSignature = new bytes(uint32(contractSignatureLen));
+                for (uint256 j = 0; j < contractSignatureLen; j++) {
+                    contractSignature[j] = signatures[uint256(s).add(32).add(j)];
+                }
+
+                require(ISignatureValidator(currentOwner).isValidSignature(data, contractSignature) == EIP1271_MAGIC_VALUE, "GS024");
             } else if (v == 1) {
                 // If v is 1 then it is an approved hash
                 // When handling approved hashes the address of the approver is encoded into r
